@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src\Util.fs" />
+    <Compile Include="src\Config.fs" />
+    <Compile Include="src\File.fs" />
+    <Compile Include="src\Report.fs" />
+    <Compile Include="src\Endpoint.fs" />
+    <Compile Include="src\Krakend.fs" />
+    <Compile Include="src\Kraki.fs" />
+    <Compile Include="src\KrakiLint.fs" />
+    <Compile Include="src\KrakiList.fs" />
+    <Compile Include="src\Command.fs" />
+    <Compile Include="src\Cli.fs" />
+    <Compile Include="src\Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.0-preview1" />
+    <PackageReference Include="FSharp.Json" Version="0.4.1" />
+    <PackageReference Include="NJsonSchema" Version="10.6.6" />
+  </ItemGroup>
+
+</Project>

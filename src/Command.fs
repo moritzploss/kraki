@@ -2,11 +2,9 @@ module Command
 
 open Util.Result
 
-type OutType = OpenApi
-
 type LintResult = Pass of string | Fail of Report.Report
 
-let loadConfig configParser path =
+let private loadConfig configParser path =
     File.read path >>= configParser
 
 let list (groupBy: string) (krakendFile : string)  =
@@ -18,4 +16,4 @@ let lint (krakiFile : string) (krakendFile : string) =
     match KrakiLint.lint <!> krakiConfig <*> krakendConfig with
     | Ok (Ok ()) -> Ok (Pass "Linter OK!")
     | Ok (Error report) -> Ok (Fail report)
-    | Error reason -> Error(reason)
+    | Error reason -> Error reason

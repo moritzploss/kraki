@@ -76,7 +76,7 @@ For example, the following config ensures that `owner` is of type `string`, and
     "endpoints": {
       "require": {
         "owner": "a string",
-        "tags": ["a", "list", "of", "string", "tags"],
+        "tags": ["an", "array", "of", "string", "tags"],
       }
     }
   }

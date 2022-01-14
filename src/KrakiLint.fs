@@ -2,36 +2,11 @@ module KrakiLint
 
 open Util.Option
 open Util
-open NJsonSchema
-open FSharp.Json
 
-let private validateSchema schemaTemplate value =
-    match Util.isString schemaTemplate, Util.isString value with
-    | true, true -> Ok ()
-    | true, _ -> Error (KrakiError.schemaError schemaTemplate value)
-    | _, true -> Error (KrakiError.schemaError schemaTemplate value)
-    | _, _ ->
-        let schema = JsonSchema.FromSampleJson(Json.serialize(schemaTemplate))
-        match Json.serialize(value) |> schema.Validate |> Seq.length with
-        | 0 -> Ok ()
-        | _ -> Error (KrakiError.schemaError schemaTemplate value)
-
-let private checkEndpointFields fields endpoint =
-    Map.fold(fun errors field schema ->
-        match Map.tryFind field endpoint with
-        | Some value ->
-            match validateSchema schema value with
-            | Ok () -> errors
-            | Error moreErrors -> moreErrors :: errors
-        | None -> KrakiError.missingRequiredField field :: errors
-    ) [] fields
-
-let private checkRequiredFields (fields : Map<string, obj>) (krakendEndpoints : array<Endpoint.Endpoint>) =
-    Array.fold (fun report endpoint ->
-        match checkEndpointFields fields endpoint with
-        | [] -> report
-        | errors -> Report.extend (Endpoint.toSafeId endpoint) errors report
-    ) Report.empty krakendEndpoints
+let private validateRequiredFields (fields : Map<string, obj>) (krakendEndpoints : list<Endpoint.Endpoint>) =
+    Map.fold(fun report field schema ->
+        Kraki.checkValuesHaveSchema schema [field] krakendEndpoints report
+    ) Report.empty fields
 
 let private makeSortProjection sortKeys =
     fun endpoint -> List.map (fun key -> string (Map.find key endpoint)) sortKeys
@@ -48,8 +23,8 @@ let private maybeExtendSortReport keys krakend sorted report =
         <| report
     | _ -> report
 
-let private checkSorting (sortCfg : Kraki.SortConfig) (krakendEndpoints : array<Endpoint.Endpoint>) =
-    match Kraki.checkKeysHaveStringValue sortCfg.by krakendEndpoints |> Report.toOption with
+let private validateSorting (sortCfg : Kraki.SortConfig) (krakendEndpoints : list<Endpoint.Endpoint>) =
+    match Kraki.checkKeysHaveStringValue sortCfg.by krakendEndpoints Report.empty |> Report.toOption with
     | Some report -> report
     | None ->
         Seq.fold2 (fun report' krakendEndpoint sortedEndpoint ->
@@ -58,9 +33,9 @@ let private checkSorting (sortCfg : Kraki.SortConfig) (krakendEndpoints : array<
             | false -> maybeExtendSortReport sortCfg.by krakendEndpoint sortedEndpoint report'
         ) Report.empty krakendEndpoints <| Seq.sortBy (makeSortProjection sortCfg.by) krakendEndpoints
 
-let private checkEndpoints (krakendEndpoints : array<Endpoint.Endpoint>) (endpointCfg : Kraki.EndpointConfig) =
-    [ checkRequiredFields <!> endpointCfg.require;
-      checkSorting <!> endpointCfg.sort]
+let private checkEndpoints (krakendEndpoints : list<Endpoint.Endpoint>) (endpointCfg : Kraki.EndpointConfig) =
+    [ validateRequiredFields <!> endpointCfg.require;
+      validateSorting <!> endpointCfg.sort]
     |> Option.catOptions
     |> List.map (fun f -> f krakendEndpoints)
     |> Report.merge

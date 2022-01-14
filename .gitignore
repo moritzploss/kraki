@@ -6,10 +6,6 @@
 bin/
 obj/
 
-kraki.json
-krakend.json
-out.json
-
 .DS_Store
 
 testdata/

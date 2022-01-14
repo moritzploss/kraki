@@ -5,14 +5,14 @@ open FSharp.Core
 open Util.Result
 
 [<Verb("lint", HelpText = "Lint a krakend config file.")>]
-type private LintArgs =
+type LintArgs =
     { [<Option('c', "config", Default = "kraki.json", HelpText = "Path to a kraki config file.")>]
       configFile: string
       [<Value(0, MetaName = "input file", Required = true, HelpText = "Path to the krakend config file.")>]
       inFile: string }
 
 [<Verb("list", HelpText = "List endpoints in a krakend config file.")>]
-type private ListArgs =
+type ListArgs =
     { [<Option('g', "groupby", Default = "endpoint", HelpText = "A JSON field by which endpoints are grouped.")>]
       groupBy: string
       [<Value(0, MetaName = "input file", Required = true, HelpText = "Path to the krakend config file.")>]

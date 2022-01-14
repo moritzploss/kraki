@@ -1,0 +1,52 @@
+{
+  "version": 2,
+  "name": "sample service",
+  "port": 8080,
+  "endpoints": [
+    {
+      "@owner": "A Team",
+      "@group": "A Group",
+      "endpoint": "/foo",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": ["https://myhost.com"],
+          "url_pattern": "/foo",
+          "method": "POST",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "@owner": "A Team",
+      "@group": "A Group",
+      "endpoint": "/foo",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": ["https://myhost.com"],
+          "url_pattern": "/foo",
+          "method": "POST",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "@owner": "Another Team",
+      "@group": "Another Group",
+      "endpoint": "/bar",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "host": ["https://myhost.com"],
+          "url_pattern": "/foo",
+          "method": "POST",
+          "encoding": "no-op"
+        }
+      ]
+    }
+  ]
+}

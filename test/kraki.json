@@ -1,0 +1,13 @@
+{
+  "lint": {
+    "endpoints": {
+      "require": {
+        "@owner": "a string",
+        "@group": "a string"
+      },
+      "sort": {
+        "by": ["@group", "endpoint", "method"]
+      }
+    }
+  }
+}

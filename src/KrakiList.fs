@@ -11,10 +11,9 @@ let listBy field (krakendCfg : Krakend.KrakendConfig) =
     match krakendCfg.endpoints with
     | None -> Error (Failure "Config file does not contain endpoints")
     | Some endpoints ->
-        match KrakiLint.checkKeysExist (field :: baseFields) endpoints with
-        | report when not (Report.isEmpty report) ->
-            Error (Failure (Report.toString Report.Error report))
-        | _ ->
+        match Kraki.checkKeysHaveStringValue (field :: baseFields) endpoints |> Report.toOption with
+        | Some report -> Error (Failure (Report.toErrorMessage report))
+        | None ->
             Array.toList endpoints
             |> List.groupBy (Map.find field >> string)
             |> listingToReport

@@ -3,7 +3,7 @@ module Config
 open FSharp.Json
 open Util
 
-let parse<'T> lax jsonString =
+let private parse<'T> lax jsonString =
     let config = JsonConfig.create(allowUntyped = lax)
     Result.ofFailable <| lazy Json.deserializeEx<'T> config jsonString
 

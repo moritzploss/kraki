@@ -7,13 +7,15 @@ type private ReportType = Status | Error
 type Report = Map<string,ReportMessages>
 
 let private toString (reportType : ReportType) (report : Report) : string =
-    let count, msg =
-        Map.fold (fun (c, acc) k errs ->
-            let errorList = String.concat "\n  " errs
-            (c + List.length errs, acc + $"\n\n{k}:\n  {errorList}")
-        ) (0, "") report
+    let msg =
+        Map.fold (fun acc key messages ->
+            (key + "\n  " + (String.concat "\n  " messages)) :: acc
+        ) [] report
+        |> String.concat "\n\n"
     match reportType with
-    | Error -> $"\nFound {count} error" + (if count = 1 then "" else "s") + msg
+    | Error ->
+        let count = Map.fold (fun c _ messages -> c + List.length messages) 0 report
+        $"\nFound {count} error" + (if count = 1 then "" else "s") + "\n\n" + msg
     | Status -> msg
 
 let empty : Report = Map.empty

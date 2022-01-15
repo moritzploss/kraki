@@ -17,6 +17,42 @@ Then run Kraki with the `--help` flag to see a list of supported commands:
 
     docker run kraki --help
 
+## Lint Config Files
+
+Kraki can lint KrakenD config files against a set of linting rules that are
+specified in a `kraki.json` file. In particular, endpoint definitions can be
+validated against a [JSON Schema](https://json-schema.org/) specification.
+For example, the following `kraki.json` configuration creates a linting rule
+that ensures that all endpoint definitions include a key `owner` of type
+`string`, and that endpoints are sorted in ascending order by `endpoint` and
+`method`:
+
+```json
+{
+  "lint": {
+    "endpoints": {
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Endpoint",
+        "type": "object",
+        "properties": {
+           "owner": { "type": "string" },
+        },
+        "required": ["owner"]
+      },
+      "sort": {
+        "by": ["endpoint", "method"]
+      }
+    }
+  }
+}
+```
+
+Assuming that `kraki.json` and `krakend.json` are located in the current
+working directory, the linting rules can be checked with:
+
+    docker run -v "${PWD}:/tmp" kraki lint --config /tmp/kraki.json /tmp/krakend.json
+
 ## List Endpoints
 
 To see all endpoints that are defined in a KrakenD config file, mount the
@@ -33,52 +69,4 @@ endpoints by method:
     docker run -v "${PWD}:/tmp" kraki list --groupby method /tmp/krakend.json
 
 Note that `--groupby` requires that the specified key is defined for all
-endpoints, and that the associated value is a string.
-
-## Linting
-
-Kraki can lint KrakenD config files against a set of linting rules that are
-specified in a `kraki.json` file. For example, the following `kraki.json`
-configuration creates a linting rule that ensures that all endpoint definitions
-include a key `owner` of type `string`, and that endpoints are sorted
-in ascending order by `endpoint` and `method`:
-
-```json
-{
-  "lint": {
-    "endpoints": {
-      "require": {
-        "owner": "a string"
-      },
-      "sort": {
-        "by": ["endpoint", "method"]
-      }
-    }
-  }
-}
-```
-
-Assuming that `kraki.json` and `krakend.json` are located in the current
-working directory, the linting rules can be checked with:
-
-    docker run -v "${PWD}:/tmp" kraki lint --config /tmp/kraki.json /tmp/krakend.json
-
-## Advanced Linting Config
-
-In the above example, `a string` is a sample value for `owner`, not a
-type specification. More complex sample values can be provided if required.
-For example, the following config ensures that `owner` is of type `string`, and
-`tags` is an array of `string`:
-
-```json
-{
-  "lint": {
-    "endpoints": {
-      "require": {
-        "owner": "a string",
-        "tags": ["a", "list", "of", "string", "tags"],
-      }
-    }
-  }
-}
-```
+endpoints.

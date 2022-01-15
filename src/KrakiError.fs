@@ -1,13 +1,14 @@
 module KrakiError
 
-let noStringValueAssociated field =
-    $"No string value associated with required key '{field}'"
+let missingRequiredField valueType field =
+    $"{valueType} is missing required key '{field}'"
 
-let missingRequiredField field =
-    $"Missing required key '{field}'"
+let schemaError errors valueType schema  =
+    let description =
+        match Map.tryFind "title" schema with
+        | Some title -> $"schema '{title}'"
+        | None -> "untitled schema"
+    $"{valueType} definition does not match {description}: {errors}"
 
-let schemaError schemaTemplate value =
-    $"Value '{value}' does not match schema template '{schemaTemplate}'"
-
-let incorrectSortOrder expected =
-    $"Endpoint should be listed before endpoint '{expected}'"
+let incorrectSortOrder valueType expected =
+    $"{valueType} should be listed before endpoint '{expected}'"

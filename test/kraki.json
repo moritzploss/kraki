@@ -1,9 +1,15 @@
 {
   "lint": {
     "endpoints": {
-      "require": {
-        "@owner": "a string",
-        "@group": "a string"
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "title": "Endpoint",
+        "type": "object",
+        "properties": {
+           "@owner": { "type": "string" },
+           "@group": { "type": "string" }
+        },
+        "required": ["@owner", "@group"]
       },
       "sort": {
         "by": ["@group", "endpoint", "method"]

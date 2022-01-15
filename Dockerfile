@@ -5,6 +5,10 @@ WORKDIR /source
 COPY *.fsproj .
 RUN dotnet restore
 
+# set version
+ARG VERSION
+RUN echo "<Project><PropertyGroup><Version>${VERSION}</Version></PropertyGroup></Project>" > Directory.Build.props
+
 # copy and publish app and libraries
 COPY . .
 RUN dotnet publish -c release -o /app

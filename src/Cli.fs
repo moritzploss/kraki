@@ -29,21 +29,23 @@ let private runLint (lintArgs : LintArgs) =
     | Ok (Command.Fail report) -> Error (Failure (Report.toErrorMessage report))
     | Error error -> Error error
 
-let private runCommand (command: CommandLine.Parsed<obj>) =
-    match command.Value with
+let private runCommand (parsedArgs: obj) =
+    match parsedArgs with
     | :? ListArgs as generateArgs -> runList generateArgs
     | :? LintArgs as lintArgs -> runLint lintArgs
 
 let private parseArgs args =
     match Parser.Default.ParseArguments<ListArgs, LintArgs> args with
-    | :? CommandLine.Parsed<obj> as command -> Ok command
-    | :? CommandLine.NotParsed<obj> as command -> Error (Failure <| (Seq.head command.Errors).ToString())
+    | :? CommandLine.Parsed<obj> as command -> Ok command.Value
+    | :? CommandLine.NotParsed<obj> -> Error (Failure "")
 
 let exec args =
     match parseArgs args >>= runCommand with
     | Ok msg ->
         printfn "%s" msg
         0
+    | Error exn when exn.Message = "" ->
+        1
     | Error exn ->
         printfn "%s" exn.Message
         1

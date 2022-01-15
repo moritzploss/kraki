@@ -36,7 +36,7 @@ that ensures that all endpoint definitions include a key `owner` of type
         "title": "Endpoint",
         "type": "object",
         "properties": {
-           "owner": { "type": "string" }
+          "owner": { "type": "string" }
         },
         "required": ["owner"]
       },

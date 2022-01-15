@@ -6,8 +6,8 @@
         "title": "Endpoint",
         "type": "object",
         "properties": {
-           "@owner": { "type": "string" },
-           "@group": { "type": "string" }
+          "@owner": { "type": "string" },
+          "@group": { "type": "string" }
         },
         "required": ["@owner", "@group"]
       },

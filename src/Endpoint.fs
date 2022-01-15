@@ -19,4 +19,11 @@ let toSafeId (endpoint : Endpoint) =
     try
         toId endpoint
     with
-    | _ -> "<< unknown endpoint >>"
+    | _ -> "unknown endpoint (missing key 'endpoint' or 'method')"
+
+let validate validator endpoints =
+    List.fold (fun report endpoint ->
+        match validator endpoint with
+        | [] -> report
+        | errors -> Report.extend (toId endpoint) errors report
+    ) Report.empty endpoints

@@ -3,33 +3,30 @@ module KrakiLint
 open Util.Option
 open Util
 
-let private validateSchema (schema : Kraki.Schema) (krakendEndpoints : list<Endpoint.Endpoint>) =
-    Kraki.checkSchema schema krakendEndpoints Report.empty
+let private validateSchema (schema : Kraki.Schema) (endpoints : list<Endpoint.Endpoint>) =
+    Endpoint.validate (Kraki.validateSchema schema) endpoints
 
-let private makeSortProjection sortKeys =
-    fun endpoint -> List.map (fun key -> string (Map.find key endpoint)) sortKeys
+let private validateKeysExist (keys: list<string>) (endpoints : list<Endpoint.Endpoint>) =
+    Endpoint.validate (Kraki.validateKeysExist keys) endpoints
 
-let private makeSortID sortKeys endpoint =
-    makeSortProjection sortKeys endpoint |> String.concat ""
+let private addSortError expected actual report =
+    Report.extend (Endpoint.toId actual) [KrakiMessage.wrongSortOrder (Endpoint.toId expected)] report
 
-let private maybeExtendSortReport keys krakend sorted report = 
-    match makeSortID keys sorted, makeSortID keys krakend with
-    | s, k when s > k ->
-        Report.extend
-        <| Endpoint.toId krakend
-        <| [KrakiError.incorrectSortOrder "Endpoint" <| Endpoint.toId sorted]
-        <| report
-    | _ -> report
+let private validateSortOrder (sortKeys: list<string>) (endpoints : list<Endpoint.Endpoint>) =
+    let projection endpoint =
+        List.map (fun key -> (string (Map.find key endpoint)).ToLower()) sortKeys
+    let offender =
+        Seq.zip (Seq.ofList endpoints) (Seq.sortBy projection endpoints)
+        |> fun seq -> lazy Seq.find (fun (actual, expected) -> not (expected = actual)) seq
+        |> Option.ofFailable
+    match offender with
+    | None -> Report.empty
+    | Some (actual, expected) -> addSortError expected actual Report.empty
 
-let private validateSorting (sortCfg : Kraki.SortConfig) (krakendEndpoints : list<Endpoint.Endpoint>) =
-    match Kraki.checkKeysExist sortCfg.by krakendEndpoints Report.empty |> Report.toOption with
+let private validateSorting (sortCfg : Kraki.SortConfig) (endpoints : list<Endpoint.Endpoint>) =
+    match validateKeysExist sortCfg.by endpoints |> Report.toOption with
     | Some report -> report
-    | None ->
-        Seq.fold2 (fun report' krakendEndpoint sortedEndpoint ->
-            match krakendEndpoint = sortedEndpoint with
-            | true -> report'
-            | false -> maybeExtendSortReport sortCfg.by krakendEndpoint sortedEndpoint report'
-        ) Report.empty krakendEndpoints <| Seq.sortBy (makeSortProjection sortCfg.by) krakendEndpoints
+    | None -> validateSortOrder sortCfg.by endpoints
 
 let private checkEndpoints (krakendEndpoints : list<Endpoint.Endpoint>) (endpointCfg : Kraki.EndpointConfig) =
     match validateSchema <!> endpointCfg.schema <*> Some krakendEndpoints >>= Report.toOption with

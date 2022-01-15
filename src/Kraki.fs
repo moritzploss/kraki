@@ -3,7 +3,7 @@ module Kraki
 open NJsonSchema
 open FSharp.Json
 
-type Validator = obj -> Result<unit, obj -> string>
+type Schema = Map<string, obj>
 
 type SortConfig = {
     by: List<string>
@@ -11,7 +11,7 @@ type SortConfig = {
 }
 
 type EndpointConfig = {
-    require: option<Map<string, obj>>
+    schema: option<Schema>
     sort: option<SortConfig>
 }
 
@@ -23,45 +23,30 @@ type KrakiConfig = {
     lint: option<LinterConfig>
 }
 
-let private valueIsString value =
-    match Util.isString value with
-    | true -> Ok ()
-    | false -> Error KrakiError.noStringValueAssociated
+let private getValidator schema =
+    JsonSchema.FromJsonAsync(Json.serialize(schema))
+        |> Async.AwaitTask
+        |> Async.RunSynchronously
 
-let private valueHasSchema schemaTemplate value =
-    match Util.isString schemaTemplate, Util.isString value with
-    | true, true -> Ok ()
-    | true, _ -> Error (KrakiError.schemaError schemaTemplate)
-    | _, true -> Error (KrakiError.schemaError schemaTemplate)
-    | _, _ ->
-        let schema = JsonSchema.FromSampleJson(Json.serialize(schemaTemplate))
-        match Json.serialize(value) |> schema.Validate |> Seq.length with
-        | 0 -> Ok ()
-        | _ -> Error (KrakiError.schemaError schemaTemplate)
+let addError errorFun ctx endpoint report =
+    Report.extend (Endpoint.toSafeId endpoint) [errorFun "Endpoint" ctx] report
 
-let private validateOne (validator: Validator) (key : string) (endpoint: Endpoint.Endpoint) (report : Report.Report) =
-    let extendReport error =
-        let id = Endpoint.toSafeId endpoint
-        Report.extend id [error] report
-    match Map.tryFind key endpoint with
-    | Some v -> 
-        match validator v with
-        | Ok _ -> report
-        | Error errorFun -> extendReport (errorFun v)
-    | None -> extendReport (KrakiError.missingRequiredField key)
-
-let private validate (validator: Validator) (keys : List<string>) (endpoints : list<Endpoint.Endpoint>) (report : Report.Report) =
+let checkKeysExist (keys : List<string>) (endpoints : list<Endpoint.Endpoint>) (report : Report.Report) =
     List.fold (fun report' key ->
         List.fold (fun report'' endpoint ->
-            validateOne validator key endpoint report''
+            match Map.containsKey key endpoint with
+            | true -> report''
+            | false -> addError KrakiError.missingRequiredField key endpoint report''
         ) report' endpoints
     ) report keys
 
-let checkKeysHaveStringValue (keys : List<string>) (endpoints : list<Endpoint.Endpoint>) report =
-    validate valueIsString keys endpoints report
-
-let checkValuesHaveSchema schemaTemplate (keys : List<string>) (endpoints : list<Endpoint.Endpoint>) report =
-    validate (valueHasSchema schemaTemplate) keys endpoints report
+let checkSchema schema endpoints report =
+    let validator = getValidator schema
+    List.fold (fun report' endpoint ->
+        match Json.serialize(endpoint) |> validator.Validate with
+        | seq when Seq.isEmpty seq -> report'
+        | seq -> addError (KrakiError.schemaError (Seq.toList seq)) schema endpoint report'
+    ) report endpoints
 
 let parseConfig filePath =
     Config.parseLax<KrakiConfig> filePath

@@ -9,11 +9,11 @@
     <Compile Include="src\Util.fs" />
     <Compile Include="src\Config.fs" />
     <Compile Include="src\File.fs" />
+    <Compile Include="src\KrakiMessage.fs" />
+    <Compile Include="src\Kraki.fs" />
     <Compile Include="src\Report.fs" />
     <Compile Include="src\Endpoint.fs" />
     <Compile Include="src\Krakend.fs" />
-    <Compile Include="src\KrakiError.fs" />
-    <Compile Include="src\Kraki.fs" />
     <Compile Include="src\KrakiLint.fs" />
     <Compile Include="src\KrakiList.fs" />
     <Compile Include="src\Command.fs" />

@@ -28,25 +28,19 @@ let private getValidator schema =
         |> Async.AwaitTask
         |> Async.RunSynchronously
 
-let addError errorFun ctx endpoint report =
-    Report.extend (Endpoint.toSafeId endpoint) [errorFun "Endpoint" ctx] report
+let validateKeysExist keys value  =
+    List.fold (fun errors key ->
+        match Map.containsKey key value with
+        | true -> errors
+        | false -> KrakiMessage.missingKey key :: errors
+    ) [] keys
 
-let checkKeysExist (keys : List<string>) (endpoints : list<Endpoint.Endpoint>) (report : Report.Report) =
-    List.fold (fun report' key ->
-        List.fold (fun report'' endpoint ->
-            match Map.containsKey key endpoint with
-            | true -> report''
-            | false -> addError KrakiError.missingRequiredField key endpoint report''
-        ) report' endpoints
-    ) report keys
-
-let checkSchema schema endpoints report =
+let validateSchema schema value =
     let validator = getValidator schema
-    List.fold (fun report' endpoint ->
-        match Json.serialize(endpoint) |> validator.Validate with
-        | seq when Seq.isEmpty seq -> report'
-        | seq -> addError (KrakiError.schemaError (Seq.toList seq)) schema endpoint report'
-    ) report endpoints
+    Json.serialize(value)
+    |> validator.Validate
+    |> Seq.toList
+    |> List.map (KrakiMessage.schemaMismatch schema)
 
 let parseConfig filePath =
     Config.parseLax<KrakiConfig> filePath

@@ -10,7 +10,7 @@ let private validateKeysExist (keys: list<string>) (endpoints : list<Endpoint.En
     Endpoint.validate (Kraki.validateKeysExist keys) endpoints
 
 let private addSortError expected actual report =
-    Report.extend (Endpoint.toId actual) [KrakiMessage.wrongSortOrder (Endpoint.toId expected)] report
+    Report.extend (Endpoint.toId actual) [Message.wrongSortOrder (Endpoint.toId expected)] report
 
 let private validateSortOrder (sortKeys: list<string>) (endpoints : list<Endpoint.Endpoint>) =
     let projection endpoint =

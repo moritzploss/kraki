@@ -7,4 +7,4 @@ type KrakendConfig = {
 }
 
 let parseConfig filePath =
-    Config.parseLax<KrakendConfig> filePath
+    Parser.parseLax<KrakendConfig> filePath

@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "kraki", "kraki.fsproj", "{8A12BC7C-DC96-4488-B5DC-94299C4E58F2}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Kraki.Test", "Kraki.Test\Kraki.Test.fsproj", "{600019DF-CD06-4D99-957C-709FCD199A86}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8A12BC7C-DC96-4488-B5DC-94299C4E58F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A12BC7C-DC96-4488-B5DC-94299C4E58F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A12BC7C-DC96-4488-B5DC-94299C4E58F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A12BC7C-DC96-4488-B5DC-94299C4E58F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{600019DF-CD06-4D99-957C-709FCD199A86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{600019DF-CD06-4D99-957C-709FCD199A86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{600019DF-CD06-4D99-957C-709FCD199A86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{600019DF-CD06-4D99-957C-709FCD199A86}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -4,12 +4,13 @@ build:
 	@docker build -t kraki --build-arg VERSION=$(VERSION) .
 
 lint:
-	@docker run -v "${PWD}/test:/tmp" kraki lint -c /tmp/kraki.json /tmp/krakend.json
+	@docker run -v "${PWD}/examples:/tmp" kraki lint -c /tmp/kraki.json /tmp/krakend.json
 
 list:
-	@docker run -v "${PWD}/test:/tmp" kraki list /tmp/krakend.json
+	@docker run -v "${PWD}/examples:/tmp" kraki list /tmp/krakend.json
 
-test: build lint list
+test:
+	dotnet test
 
 osx:
 	dotnet publish -c release -r osx-x64

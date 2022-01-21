@@ -7,9 +7,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Test
+    - name: Build and test
       shell: bash
-      run: make test
+      run: make build
   
   release:
     if: github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'no-release:')

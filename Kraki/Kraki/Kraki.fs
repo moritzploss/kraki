@@ -32,7 +32,7 @@ let validateKeysExist keys value  =
     List.fold (fun errors key ->
         match Map.containsKey key value with
         | true -> errors
-        | false -> KrakiMessage.missingKey key :: errors
+        | false -> Message.missingKey key :: errors
     ) [] keys
 
 let validateSchema schema value =
@@ -40,7 +40,7 @@ let validateSchema schema value =
     Json.serialize(value)
     |> validator.Validate
     |> Seq.toList
-    |> List.map (KrakiMessage.schemaMismatch schema)
+    |> List.map (Message.schemaMismatch schema)
 
 let parseConfig filePath =
-    Config.parseLax<KrakiConfig> filePath
+    Parser.parseLax<KrakiConfig> filePath

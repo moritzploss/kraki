@@ -6,19 +6,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="src\Util.fs" />
-    <Compile Include="src\Config.fs" />
-    <Compile Include="src\File.fs" />
-    <Compile Include="src\KrakiMessage.fs" />
-    <Compile Include="src\Kraki.fs" />
-    <Compile Include="src\Report.fs" />
-    <Compile Include="src\Endpoint.fs" />
-    <Compile Include="src\Krakend.fs" />
-    <Compile Include="src\KrakiLint.fs" />
-    <Compile Include="src\KrakiList.fs" />
-    <Compile Include="src\Command.fs" />
-    <Compile Include="src\Cli.fs" />
-    <Compile Include="src\Program.fs" />
+    <Compile Include="Kraki\Util\Util.fs" />
+    <Compile Include="Kraki\Util\Parser.fs" />
+    <Compile Include="Kraki\Util\File.fs" />
+    <Compile Include="Kraki\Report\Message.fs" />
+    <Compile Include="Kraki\Report\Report.fs" />
+    <Compile Include="Kraki\Krakend\Endpoint.fs" />
+    <Compile Include="Kraki\Krakend\Krakend.fs" />
+    <Compile Include="Kraki\Kraki\Kraki.fs" />
+    <Compile Include="Kraki\Kraki\KrakiLint.fs" />
+    <Compile Include="Kraki\Kraki\KrakiList.fs" />
+    <Compile Include="Kraki\Cli\Command.fs" />
+    <Compile Include="Kraki\Cli\Cli.fs" />
+    <Compile Include="Kraki\Program.fs" />
   </ItemGroup>
 
   <ItemGroup>

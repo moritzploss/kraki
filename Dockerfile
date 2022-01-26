@@ -9,8 +9,13 @@ RUN dotnet restore
 ARG VERSION
 RUN echo "<Project><PropertyGroup><Version>${VERSION}</Version></PropertyGroup></Project>" > Directory.Build.props
 
-# copy and publish app and libraries
+# copy everything
 COPY . .
+
+# run tests
+RUN dotnet test
+
+# publish app and libraries
 RUN dotnet publish -c release -o /app
 
 # final stage/image

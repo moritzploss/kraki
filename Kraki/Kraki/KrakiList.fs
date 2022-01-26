@@ -14,7 +14,7 @@ let private validateKeysExist (keys: list<string>) (endpoints : list<Endpoint.En
 
 let listingToReport listing =
     List.fold (fun report (group, endpoints) ->
-        let messages = (List.map (Endpoint.toPaddedId >> KrakiMessage.info) endpoints)
+        let messages = (List.map (Endpoint.toPaddedId >> Message.info) endpoints)
         Report.extend group messages report
     ) Report.empty listing
 

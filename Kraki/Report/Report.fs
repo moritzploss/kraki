@@ -1,6 +1,6 @@
 module Report
 
-type private ReportMessages = List<KrakiMessage.KrakiMessage>
+type private ReportMessages = List<Message.Message>
 
 type private ReportType = Status | Error
 
@@ -12,7 +12,7 @@ let private countMessages report =
 let private toString (reportType : ReportType) (report : Report) : string =
     let msg =
         Map.fold (fun acc key messages ->
-            let strMessages = List.map KrakiMessage.toString messages
+            let strMessages = List.map Message.toString messages
             (key + "\n  " + (String.concat "\n  " strMessages)) :: acc
         ) [] report
         |> String.concat "\n\n"

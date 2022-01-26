@@ -9,11 +9,12 @@ let private loadConfig configParser path =
 
 let list (groupBy: string) (krakendFile : string)  =
     loadConfig Krakend.parseConfig krakendFile >>= KrakiList.listBy groupBy
+    |> Result.map Report.toStatusMessage
 
 let lint (krakiFile : string) (krakendFile : string) =
     let krakendConfig = loadConfig Krakend.parseConfig krakendFile
     let krakiConfig = loadConfig Kraki.parseConfig krakiFile
     match KrakiLint.lint <!> krakiConfig <*> krakendConfig with
-    | Ok (Ok ()) -> Ok (Pass "Linter OK!")
-    | Ok (Error report) -> Ok (Fail report)
+    | Ok (Ok ()) -> Ok "Linter OK!"
+    | Ok (Error report) -> Error (Failure (Report.toErrorMessage report))
     | Error reason -> Error reason

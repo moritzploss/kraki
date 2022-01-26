@@ -1,4 +1,4 @@
-module Config
+module Parser
 
 open FSharp.Json
 open Util

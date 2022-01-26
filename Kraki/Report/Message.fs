@@ -1,6 +1,6 @@
-module KrakiMessage
+module Message
 
-type KrakiMessage =
+type Message =
     MissingKeyError of string
     | SchemaMismatchError of string
     | WrongOrderError of string

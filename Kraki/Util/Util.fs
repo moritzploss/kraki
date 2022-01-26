@@ -26,6 +26,8 @@ module Option =
 
     let catOptions l = List.filter (Option.isSome) l |> List.map Option.get
 
+    let some option = match option with Some a -> a
+
 module Result =
 
     let ofFailable (f : Lazy<'T>) =
@@ -45,3 +47,13 @@ module Result =
     let (<!>) = Result.map
 
     let (>>=) a b = Result.bind b a
+
+    let isError result =
+        match result with
+        | Ok _ -> false
+        | Error _ -> true
+
+    let error result =
+        match result with
+        | Error a -> a
+        | Ok _ -> failwith "excepted type constructor 'Error', but got 'Ok'"

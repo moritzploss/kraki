@@ -16,12 +16,8 @@ type TestClass () =
     let endpointCfg schema =
         { Kraki.schema = Some schema; Kraki.sort = None }
 
-    let krakendCfg endpoints =
-        let endpoints' : List<Map<string,obj>> =
-            List.map (fun vals ->
-                List.fold (fun acc (k, v) -> Map.add k v acc) Map.empty vals
-            ) endpoints
-        { Krakend.endpoints = Some endpoints' }
+    let krakendCfg endpoints =            
+        { Krakend.endpoints = Some (List.map Map.ofList endpoints) }
 
     let getErrors key report =
         match Map.tryFind key report with

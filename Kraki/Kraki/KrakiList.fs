@@ -2,15 +2,8 @@ module KrakiList
 
 let baseFields = ["endpoint"; "method"]
 
-let private validate validator endpoints =
-    List.fold (fun report endpoint ->
-        match validator endpoint with
-        | [] -> report
-        | errors -> Report.extend (Endpoint.toId endpoint) errors report
-    ) Report.empty endpoints
-
 let private validateKeysExist (keys: list<string>) (endpoints : list<Endpoint.Endpoint>) =
-    validate (Kraki.validateKeysExist keys) endpoints
+    Endpoint.validate (Kraki.validateKeysExist keys) endpoints
 
 let listingToReport listing =
     List.fold (fun report (group, endpoints) ->

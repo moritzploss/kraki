@@ -19,9 +19,9 @@ type TestClass () =
     let krakendCfg endpoints =            
         { Krakend.endpoints = Some (List.map Map.ofList endpoints) }
 
-    let getErrors key report =
+    let getValues key report =
         match Map.tryFind key report with
-        | Some errors -> errors
+        | Some vals -> vals
         | None -> []
 
     let isWrongOrderError message =
@@ -37,6 +37,11 @@ type TestClass () =
     let isSchemaMismatchError message =
         match message with
         | Message.SchemaMismatchError _ -> true
+        | _ -> false
+
+    let isInfoMessage message =
+        match message with
+        | Message.Info _ -> true
         | _ -> false
 
     let sampleSchema =
@@ -59,11 +64,8 @@ type TestClass () =
             [("method", "GET"); ("endpoint", "c")]
         ]
         let kraki = krakiCfg ["endpoint"]
-
-        let actual = KrakiLint.lint kraki krakend
-
-        let expected : Result<unit, Report.Report> = Ok ()
-        Assert.AreEqual(expected, actual)
+        let result = KrakiLint.lint kraki krakend
+        Assert.IsTrue(Result.isOk result)
 
     [<TestMethod>]
     member this.TestWronglySortedByEndpoint () =
@@ -77,8 +79,8 @@ type TestClass () =
         let report = KrakiLint.lint kraki krakend
 
         Assert.IsTrue(Result.isError report)
-        let bID = Option.some krakend.endpoints |> List.head |> Endpoint.toId
-        let bErrors = getErrors bID (report |> Result.error)
+        let bID = Option.get krakend.endpoints |> List.head |> Endpoint.toId
+        let bErrors = getValues bID (report |> Result.error)
         Assert.AreEqual(1, List.length bErrors)
         Assert.IsTrue(isWrongOrderError <| List.head bErrors)
 
@@ -94,8 +96,8 @@ type TestClass () =
         let report = KrakiLint.lint kraki krakend
 
         Assert.IsTrue(Result.isError report)
-        let putID = Option.some krakend.endpoints |> List.item 1 |> Endpoint.toId
-        let putErrors = getErrors putID (report |> Result.error)
+        let putID = Option.get krakend.endpoints |> List.item 1 |> Endpoint.toId
+        let putErrors = getValues putID (report |> Result.error)
         Assert.AreEqual(1, List.length putErrors)
         Assert.IsTrue(isWrongOrderError <| List.head putErrors)
 
@@ -112,9 +114,9 @@ type TestClass () =
 
         Assert.IsTrue(Result.isError report)
         let errors =
-            Option.some krakend.endpoints
+            Option.get krakend.endpoints
             |> List.map Endpoint.toId
-            |> List.map (fun ID -> getErrors ID <| Result.error report)
+            |> List.map (fun ID -> getValues ID <| Result.error report)
             |> List.concat
         Assert.AreEqual(3, List.length errors)
         Assert.IsTrue(List.forall isMissingKeyError errors)
@@ -128,10 +130,8 @@ type TestClass () =
         ]
         let kraki = { Kraki.lint = Some { Kraki.endpoints = Some (endpointCfg sampleSchema) } }
   
-        let actual = KrakiLint.lint kraki krakend
-
-        let expected : Result<unit, Report.Report> = Ok ()
-        Assert.AreEqual(expected, actual)
+        let result = KrakiLint.lint kraki krakend
+        Assert.IsTrue(Result.isOk result)
 
     [<TestMethod>]
     member this.TestInvalidEndpointSchema () =
@@ -146,9 +146,38 @@ type TestClass () =
 
         Assert.IsTrue(Result.isError report)
         let errors =
-            Option.some krakend.endpoints
+            Option.get krakend.endpoints
             |> List.map Endpoint.toId
-            |> List.map (fun ID -> getErrors ID <| Result.error report)
+            |> List.map (fun ID -> getValues ID <| Result.error report)
             |> List.concat
         Assert.AreEqual(2, List.length errors)
         Assert.IsTrue(List.forall isSchemaMismatchError errors)
+
+    [<TestMethod>]
+    member this.TestListEndpoints () =
+        let krakend = krakendCfg [
+            [("method", "GET"); ("endpoint", "a"); ("@owner", "foo"); ("@group", "1")];
+            [("method", "GET"); ("endpoint", "b"); ("@owner", "bar"); ("@group", "2")];
+            [("method", "GET"); ("endpoint", "c"); ("@owner", "baz"); ("@group", "3")]
+        ]
+  
+        let report = KrakiList.listBy "@owner" krakend
+
+        Assert.IsTrue(Result.isOk report)
+        let messages =
+            Option.get krakend.endpoints
+            |> List.map (Map.find "@owner" >> string)
+            |> List.map (fun ID -> getValues ID <| Result.get report)
+            |> List.concat
+        Assert.AreEqual(3, List.length messages)
+        Assert.IsTrue(List.forall isInfoMessage messages)
+
+    [<TestMethod>]
+    member this.TestListEndpointsMissingKey () =
+        let krakend = krakendCfg [
+            [("method", "GET"); ("endpoint", "a"); ("@owner", "foo"); ("@group", "1")];
+            [("method", "GET"); ("endpoint", "b"); ("@owner", "bar"); ("@group", "2")];
+            [("method", "GET"); ("endpoint", "c"); ("@owner", "baz")]
+        ]
+        let report = KrakiList.listBy "@group" krakend
+        Assert.IsTrue(Result.isError report)

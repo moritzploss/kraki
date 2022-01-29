@@ -37,4 +37,4 @@ let lint (krakiCfg : Kraki.KrakiConfig) (krakendCfg : Krakend.KrakendConfig) =
     let endpoints = krakiCfg.lint >>= fun linterCfg -> linterCfg.endpoints
     match checkEndpoints <!> krakendCfg.endpoints <*> endpoints |> Option.flatten with
     | Some report -> Error report
-    | None -> Ok ()
+    | None -> Ok (Report.extend "Linter OK!" [] Report.empty)

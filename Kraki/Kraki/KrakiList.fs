@@ -13,10 +13,10 @@ let listingToReport listing =
 
 let listBy field (krakendCfg : Krakend.KrakendConfig) =    
     match krakendCfg.endpoints with
-    | None -> Error (Failure "Config file does not contain endpoints")
+    | None -> Error (Report.extend "Config file does not contain endpoints" [] Report.empty)
     | Some endpoints ->
         match validateKeysExist (field :: baseFields) endpoints |> Report.toOption with
-        | Some report -> Error (Failure (Report.toErrorMessage report))
+        | Some report -> Error report
         | None ->
             List.groupBy (Map.find field >> string) endpoints
             |> listingToReport

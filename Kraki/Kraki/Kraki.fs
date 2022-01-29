@@ -40,6 +40,7 @@ let validateSchema schema value =
     Json.serialize(value)
     |> validator.Validate
     |> Seq.toList
+    |> List.map (fun e -> e.ToString().Replace(": #/", ": "))
     |> List.map (Message.schemaMismatch schema)
 
 let parseConfig filePath =

@@ -9,8 +9,8 @@ let private validateSchema (schema : Kraki.Schema) (endpoints : list<Endpoint.En
 let private validateKeysExist (keys: list<string>) (endpoints : list<Endpoint.Endpoint>) =
     Endpoint.validate (Kraki.validateKeysExist keys) endpoints
 
-let private addSortError expected actual report =
-    Report.extend (Endpoint.toId actual) [Message.wrongSortOrder (Endpoint.toId expected)] report
+let private addSortError sortKeys expected actual report =
+    Report.extend (Endpoint.toId actual) [Message.wrongSortOrder sortKeys (Endpoint.toId expected)] report
 
 let private validateSortOrder (sortKeys: list<string>) (endpoints : list<Endpoint.Endpoint>) =
     let projection endpoint =
@@ -21,7 +21,7 @@ let private validateSortOrder (sortKeys: list<string>) (endpoints : list<Endpoin
         |> Option.ofFailable
     match offender with
     | None -> Report.empty
-    | Some (actual, expected) -> addSortError expected actual Report.empty
+    | Some (actual, expected) -> addSortError sortKeys expected actual Report.empty
 
 let private validateSorting (sortCfg : Kraki.SortConfig) (endpoints : list<Endpoint.Endpoint>) =
     match validateKeysExist sortCfg.by endpoints |> Report.toOption with

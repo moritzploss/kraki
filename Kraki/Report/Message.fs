@@ -23,8 +23,9 @@ let schemaMismatch schema errors =
         | None -> "untitled schema"
     SchemaMismatchError $"Definition does not match {description}: {errors}"
 
-let wrongSortOrder expected =
-    WrongOrderError $"Should be defined after '{expected}'"
+let wrongSortOrder sortKeys expected =
+    let sortOrder = String.concat " -> " sortKeys
+    WrongOrderError $"Should be defined after '{expected}'. Expected sort order: {sortOrder}"
 
 let info message =
     Info message

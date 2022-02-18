@@ -2,6 +2,7 @@ module Kraki
 
 open NJsonSchema
 open FSharp.Json
+open Util
 
 type Schema = Map<string, obj>
 
@@ -35,13 +36,21 @@ let validateKeysExist keys value  =
         | false -> Message.missingKey key :: errors
     ) [] keys
 
-let validateSchema schema value =
+let validate schema (str : string) =
     let validator = getValidator schema
-    Json.serialize(value)
-    |> validator.Validate
-    |> Seq.toList
-    |> List.map (fun e -> e.ToString().Replace(": #/", ": "))
-    |> List.map (Message.schemaMismatch schema)
+    match Result.ofFailable <| lazy validator.Validate str with
+    | Ok seq ->
+        seq
+        |> Seq.toList
+        |> List.map (fun e -> e.ToString().Replace(": #/", ": "))
+        |> List.map (Message.schemaMismatch schema)
+    | Error exn ->
+        match exn.Message with
+        | msg when msg.StartsWith "Invalid pattern" -> [Message.regexError schema msg]
+        | msg -> [Message.info msg]
+
+let validateSchema schema value =
+    Json.serialize(value) |> validate schema
 
 let parseConfig filePath =
     Parser.parseLax<KrakiConfig> filePath

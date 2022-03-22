@@ -2,9 +2,14 @@ module Endpoint
 
 type Endpoint = Map<string, obj>
 
+let private find key def map  =
+    match Map.tryFind key map with
+    | Some value -> string value
+    | None -> def
+
 let getIdentifiers (endpoint : Endpoint) =
-    let method = Map.find "method" endpoint |> string
-    let path = Map.find "endpoint" endpoint |> string
+    let method = find "method" "GET" endpoint
+    let path = find "endpoint" "<unknown>" endpoint
     (method, path)
 
 let toPaddedId (endpoint : Endpoint) =
@@ -14,12 +19,6 @@ let toPaddedId (endpoint : Endpoint) =
 let toId (endpoint : Endpoint) =
     let (method, path) = getIdentifiers endpoint
     $"{method} {path}"
-
-let toSafeId (endpoint : Endpoint) =
-    try
-        toId endpoint
-    with
-    | _ -> "unknown endpoint (missing key 'endpoint' or 'method')"
 
 let validate validator endpoints =
     List.fold (fun report endpoint ->

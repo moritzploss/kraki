@@ -37,7 +37,6 @@
       "@owner": "Another Team",
       "@group": "Another Group",
       "endpoint": "/bar",
-      "method": "GET",
       "output_encoding": "no-op",
       "backend": [
         {

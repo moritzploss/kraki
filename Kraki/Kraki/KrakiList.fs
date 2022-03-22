@@ -1,6 +1,6 @@
 module KrakiList
 
-let baseFields = ["endpoint"; "method"]
+let baseFields = ["endpoint"]
 
 let private validateKeysExist (keys: list<string>) (endpoints : list<Endpoint.Endpoint>) =
     Endpoint.validate (Kraki.validateKeysExist keys) endpoints

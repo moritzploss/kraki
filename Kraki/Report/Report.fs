@@ -14,8 +14,9 @@ let private toString (reportType : ReportType) (report : Report) : string =
         Map.fold (fun acc key messages ->
             match List.map Message.toString messages with
             | [] -> key :: acc
-            | strMessages -> (key + "\n  " + (String.concat "\n  " strMessages)) :: acc
+            | strMessages -> (key + "\n  " + (String.concat "\n  " (List.sort strMessages))) :: acc
         ) [] report
+        |> List.sort
         |> String.concat "\n\n"
     match reportType with
     | Error ->

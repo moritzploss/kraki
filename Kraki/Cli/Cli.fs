@@ -15,12 +15,14 @@ type LintArgs =
 type ListArgs =
     { [<Option('g', "groupby", Default = "endpoint", HelpText = "A JSON field by which endpoints are grouped.")>]
       groupBy: string
+      [<Option('f', "format", Default = "padded", HelpText = "The output format of the endpoint list ('padded' or 'json').")>]
+      format: string
       [<Value(0, MetaName = "input file", Required = true, HelpText = "Path to the krakend config file.")>]
       inFile: string }
 
 let private runCommand (parsedArgs: obj) =
     match parsedArgs with
-    | :? ListArgs as args -> Command.list args.groupBy args.inFile
+    | :? ListArgs as args -> Command.list args.groupBy args.format args.inFile
     | :? LintArgs as args -> Command.lint args.configFile args.inFile
 
 let private parseArgs args =
